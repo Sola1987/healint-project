@@ -10,7 +10,7 @@
   <el-col :span="7">
     <el-card shadow="never" align="center">
       <h4>Daily Expense</h4>
-      <p>${{avgExpense}}</p>
+      <p>${{dailyExpense}}</p>
     </el-card>
   </el-col>
   <el-col :span="7">
@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       totalExpense: 0,
-      avgExpense: 0,
+      dailyExpense: 0,
       thisMonth: 0,
       lastMonth: 0,
       sign: '',
@@ -61,15 +61,16 @@ export default {
     this.$root.Bus.$on('listChange', ExpenseList => {
       this.totalExpense = 0;
       this.thisMonth = 0;
-      this.avgExpense = 0;
+      this.dailyExpense = 0;
       this.lastMonth = 0;
       this.sign = '';
 
-      let visits = 0, lastMonth = 0, now = new Date();
+      let visits = 0, lastMonth = 0, now = new Date(), dates = [];
       let currentMonthDate = new Date().toISOString().substring(0, 7);
       let lastMonthDate = new Date(now.getFullYear(),now.getMonth()-1,now.getDate()).toISOString().substring(0, 7);
 
       ExpenseList.map((val) => {
+        dates.push(val.date);
         this.totalExpense += parseInt(val.expense);
 
         now = new Date(val.date);
@@ -81,12 +82,12 @@ export default {
         }
         visits++;
       });
-
+      let days = (dates.sort().filter(function(el,i,a) { return (i == a.indexOf(el)); })).length;
       if (ExpenseList.length > 0) {
         let diff = this.thisMonth - lastMonth;
         this.sign = diff > 0 ? '+' : (diff === 0 ? '' : '-');
         this.lastMonth = this.formatPercentage(lastMonth === 0 ? this.thisMonth : Math.abs(diff) / lastMonth, 1);
-        this.avgExpense = this.formatNumber(this.totalExpense / visits, 2, 0);
+        this.dailyExpense = this.formatNumber(this.totalExpense / days, 2, 0);
       }
     });
   }
