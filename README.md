@@ -1,1 +1,1 @@
-# vueJS Trial
+# vueJS Example
